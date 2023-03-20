@@ -19,9 +19,7 @@ export class CalendarService {
   async loadSavedCredentialsIfExist() {
     try {
       const content = fs.readFileSync(this.TOKEN_PATH, 'utf8');
-      console.log('CONTENT', content);
-      const credentials = JSON.parse(content);
-      console.log('cred', credentials);
+      const credentials = await JSON.parse(content);
       return google.auth.fromJSON(credentials);
     } catch (err) {
       return null;
@@ -31,7 +29,7 @@ export class CalendarService {
   async saveCredentials(client) {
     const content = fs.readFileSync(this.CREDENTIALS_PATH, 'utf8');
 
-    const keys = JSON.parse(content);
+    const keys = await JSON.parse(content);
     const key = keys.installed || keys.web;
     const payload = JSON.stringify({
       type: 'authorized_user',
