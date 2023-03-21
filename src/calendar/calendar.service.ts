@@ -1,15 +1,10 @@
 import { authenticate } from '@google-cloud/local-auth';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import * as fs from 'fs';
 import { OAuth2Client } from 'google-auth-library';
 import { JSONClient } from 'google-auth-library/build/src/auth/googleauth';
 import { google } from 'googleapis';
 import path from 'path';
-import { promisify } from 'util';
-
-const read = promisify(fs.readFile);
-const write = promisify(fs.writeFile);
 
 @Injectable()
 export class CalendarService {
