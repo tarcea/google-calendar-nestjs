@@ -1,43 +1,65 @@
 import { authenticate } from '@google-cloud/local-auth';
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import * as fs from 'fs';
 import { OAuth2Client } from 'google-auth-library';
 import { JSONClient } from 'google-auth-library/build/src/auth/googleauth';
 import { google } from 'googleapis';
 import path from 'path';
+import { promisify } from 'util';
+
+const read = promisify(fs.readFile);
+const write = promisify(fs.writeFile);
 
 @Injectable()
 export class CalendarService {
+  constructor(private config: ConfigService) {}
   getCalendar() {
     return 'Here is your calendar, dude...';
   }
 
-  SCOPES = ['https://www.googleapis.com/auth/calendar.readonly'];
-  TOKEN_PATH = path.join(process.cwd(), 'token.json');
+  SCOPES = [
+    'https://www.googleapis.com/auth/calendar',
+    'https://www.googleapis.com/auth/calendar.readonly',
+    'https://www.googleapis.com/auth/calendar.events',
+  ];
+
   CREDENTIALS_PATH = path.join(process.cwd(), 'credentials.json');
+
+  // refresh_token comming from client???
+  refresh_token = '';
+
+  googleCredentials = {
+    client_id: this.config.get('GOOGLE_CLIENT_ID'),
+    project_id: this.config.get('GOOGLE_PROJECT_ID'),
+    auth_uri: this.config.get('GOOGLE_AUTH_URI'),
+    token_uri: this.config.get('GOOGLE_TOKEN_URI'),
+    auth_provider_x509_cert_url: this.config.get(
+      'GOOGLE_PROVIDER_X509_CERT_URL',
+    ),
+    client_secret: this.config.get('GOOGLE_CLIENT_SECRET'),
+  };
 
   async loadSavedCredentialsIfExist() {
     try {
-      const content = fs.readFileSync(this.TOKEN_PATH, 'utf8');
-      const credentials = await JSON.parse(content);
-      return google.auth.fromJSON(credentials);
+      return google.auth.fromJSON({
+        ...this.googleCredentials,
+        refresh_token: this.refresh_token,
+      });
     } catch (err) {
       return null;
     }
   }
 
-  async saveCredentials(client) {
-    const content = fs.readFileSync(this.CREDENTIALS_PATH, 'utf8');
-
-    const keys = await JSON.parse(content);
-    const key = keys.installed || keys.web;
+  async getCredentials(client) {
     const payload = JSON.stringify({
       type: 'authorized_user',
-      client_id: key.client_id,
-      client_secret: key.client_secret,
-      refresh_token: client.credentials.refresh_token,
+      client_id: this.googleCredentials.client_id,
+      client_secret: this.googleCredentials.client_secret,
+      refresh_token: client.credentials.refresh_token || this.refresh_token,
     });
-    fs.writeFileSync(this.TOKEN_PATH, payload);
+    this.refresh_token = client.credentials.refresh_token;
+    return payload;
   }
 
   async authorize() {
@@ -51,8 +73,9 @@ export class CalendarService {
       keyfilePath: this.CREDENTIALS_PATH,
     });
     if (client.credentials) {
-      await this.saveCredentials(client);
+      await this.getCredentials(client);
     }
+    console.log('ccc', client);
     return client;
   }
 
@@ -75,5 +98,45 @@ export class CalendarService {
       const start = event.start.dateTime || event.start.date;
       return `${start} - ${event.summary}`;
     });
+  }
+
+  async insertEvent(auth) {
+    const calendar = google.calendar({ version: 'v3', auth });
+
+    // simulate date for event
+    const eventStartTime = new Date();
+    eventStartTime.setDate(eventStartTime.getDate() + 2);
+
+    const eventEndTime = new Date();
+    eventEndTime.setDate(eventStartTime.getDate() + 2);
+    eventEndTime.setMinutes(eventStartTime.getMinutes() + 45);
+
+    calendar.events.insert(
+      {
+        auth: auth,
+        calendarId: 'primary',
+        requestBody: {
+          summary: 'Your booking',
+          location: 'Slottsbacken 11130 Slottsbacken 8',
+          start: {
+            dateTime: eventStartTime.toISOString(),
+            timeZone: 'Europe/Stockholm',
+          },
+          end: {
+            dateTime: eventEndTime.toISOString(),
+            timeZone: 'Europe/Stockholm',
+          },
+        },
+      },
+      (err, event) => {
+        if (err) {
+          console.log(
+            'There was an error contacting the Calendar service: ' + err,
+          );
+          return;
+        }
+        console.log('Event created: %s', event.htmlLink);
+      },
+    );
   }
 }

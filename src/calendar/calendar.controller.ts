@@ -16,4 +16,12 @@ export class CalendarController {
       .then(this.calendarService.getEvents)
       .catch(console.error);
   }
+
+  @Get('insert')
+  async insertEvent() {
+    return await this.calendarService
+      .authorize()
+      .then(this.calendarService.insertEvent)
+      .catch(console.error);
+  }
 }
