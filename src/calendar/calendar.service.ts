@@ -21,7 +21,7 @@ export class CalendarService {
 
   CREDENTIALS_PATH = path.join(process.cwd(), 'credentials.json');
 
-  // refresh_token comming from client???
+  // refresh_token comming from client or db???
   refresh_token = '';
 
   googleCredentials = {
@@ -70,7 +70,7 @@ export class CalendarService {
     if (client.credentials) {
       await this.getCredentials(client);
     }
-    console.log('ccc', client);
+
     return client;
   }
 
