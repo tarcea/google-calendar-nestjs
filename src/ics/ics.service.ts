@@ -22,7 +22,7 @@ export class IcsService {
       start: this.getTimesArray(startTime),
       end: this.getTimesArray(endTime),
       title: title,
-      description: `Your biiking`,
+      description: `Your booking`,
       location: `${location.address}, ${location.postalCode}, ${location.city}`,
     };
   }
