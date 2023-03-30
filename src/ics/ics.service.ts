@@ -24,12 +24,17 @@ export class IcsService {
       title: title,
       description: `Your booking`,
       location: `${location.address}, ${location.postalCode}, ${location.city}`,
+      // status: 'CANCELLED',
+      // method: 'CANCEL',
+      // sequence: 3,
+      // uid: 'LZfXLFzPPR4NNrgjlWDxnTEST',
     };
   }
 
   createIcsResponse(content: BookingContent): icsResponse {
     const event: EventAttributes = this.parseContentToEvent(content);
     const { value, error } = createEvent(event);
+    console.log(value);
     const result: icsResponse = { ics: value, error };
     if (error) {
       result.error = error;
