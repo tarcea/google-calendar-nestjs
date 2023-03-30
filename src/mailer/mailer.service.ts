@@ -24,11 +24,11 @@ export class MailerService {
     // logger: true,
   });
 
-  async sendNewEmail(sendTo: string) {
+  async sendNewEmail(email: string) {
     try {
       await this.transporter.sendMail({
         from: this.sender,
-        to: sendTo,
+        to: email,
         subject: 'You have a new booking',
         text: '',
         html: `
