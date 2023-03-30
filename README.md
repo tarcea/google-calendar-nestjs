@@ -13,7 +13,7 @@ Include `credentials.json` in your working directory and add `.env` as in `env.e
 
 ## Sending emails
 
-Update the `.env` file with the details of an SMTP service (see `env.example`)
+Update the `.env` file with the details of an SMTP service as in `env.example` (you can use [sendinblue](https://www.sendinblue.com/) for SMTP or other resource available online)
 
 Send emails using the below endpoint (replace `avalidemail@something.com` with a valid email):
 
