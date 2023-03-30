@@ -6,6 +6,7 @@ import { CalendarController } from './calendar/calendar.controller';
 import { CalendarService } from './calendar/calendar.service';
 import { GoogleController } from './google/google.controller';
 import { GoogleService } from './google/google.service';
+import { IcsService } from './ics/ics.service';
 import { MailerController } from './mailer/mailer.controller';
 import { MailerService } from './mailer/mailer.service';
 
@@ -15,7 +16,18 @@ import { MailerService } from './mailer/mailer.service';
       isGlobal: true,
     }),
   ],
-  controllers: [AppController, CalendarController, GoogleController, MailerController],
-  providers: [AppService, CalendarService, GoogleService, MailerService],
+  controllers: [
+    AppController,
+    CalendarController,
+    GoogleController,
+    MailerController,
+  ],
+  providers: [
+    AppService,
+    CalendarService,
+    GoogleService,
+    MailerService,
+    IcsService,
+  ],
 })
 export class AppModule {}

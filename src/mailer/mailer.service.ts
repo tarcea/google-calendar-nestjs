@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import nodemailer, { Transporter } from 'nodemailer';
+import { IcsService } from '../ics/ics.service';
 
 @Injectable()
 export class MailerService {
-  constructor(private config: ConfigService) {}
+  constructor(private config: ConfigService, private icsService: IcsService) {}
 
   private readonly hostname = this.config.get('SMTP_HOST');
   private readonly username = this.config.get('SMTP_USERNAME');
@@ -22,6 +23,17 @@ export class MailerService {
       pass: this.password,
     },
     // logger: true,
+  });
+
+  ics = this.icsService.createIcs({
+    title: 'Meeting with colleagues',
+    startTime: '2023-04-29T14:07:00.000Z',
+    endTime: '2023-04-30T16:30:00.000Z',
+    location: {
+      address: 'Slottsbacken 8',
+      postalCode: '11130',
+      city: 'Stockholm',
+    },
   });
 
   async sendNewEmail(email: string) {
@@ -45,7 +57,7 @@ export class MailerService {
         attachments: [
           {
             filename: 'booking.ics',
-            content: 'ics',
+            content: this.ics,
           },
         ],
       });
