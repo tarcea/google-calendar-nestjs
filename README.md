@@ -15,6 +15,6 @@ Include `credentials.json` in your working directory and add `.env` as in `env.e
 
 Update the `.env` file with the details of an SMTP service (see `env.example`)
 
-Send emails using the below query
+Send emails using the below endpoint (replace `avalidemail@something.com` with a valid email):
 
 `http://localhost:3000/mailer?email=avalidemail@something.com`
